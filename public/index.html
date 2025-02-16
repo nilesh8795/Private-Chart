@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Chat</title>
+    
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Custom Script -->
+    <script defer src="script.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .chat-container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .message-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="chat-container">
+            <h2 class="text-center text-primary">Private Chat</h2>
+            <p class="text-center text-muted">Your Socket ID: <strong id="myId"></strong></p>
+
+            <div class="mb-3">
+                <input type="text" id="receiverId" class="form-control" placeholder="Enter Receiver ID">
+            </div>
+            <div class="mb-3">
+                <input type="text" id="message" class="form-control" placeholder="Enter Message">
+            </div>
+            <button id="sendBtn" class="btn btn-primary w-100">Send</button>
+
+            <h5 class="mt-4">Messages:</h5>
+            <ul id="messages" class="list-group message-list"></ul>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional for animations) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
