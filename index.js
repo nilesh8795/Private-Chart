@@ -77,7 +77,6 @@ io.on("connection", (socket) => {
         message,
       });
       await msg.save();
-      console.log(`Offline message stored for ${recipient}`);
     }
   });
 
@@ -85,7 +84,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     if (socket.username) {
       delete users[socket.username];
-      console.log(`User disconnected: ${socket.username}`);
     }
   });
 });
