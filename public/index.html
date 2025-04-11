@@ -1,59 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Chat</title>
-    
-    <!-- Bootstrap CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Socket.io -->
-    <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- Custom Script -->
-    <script defer src="script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Private Chat</title>
 
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .chat-container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .message-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-    </style>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .chat-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .info {
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .info span {
+      font-weight: bold;
+      color: #333;
+    }
+
+    #messages {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 15px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fafafa;
+    }
+
+    #messages li {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    #messages li:last-child {
+      border-bottom: none;
+    }
+
+    .message-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .message-input button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .message-input button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container mt-5">
-        <div class="chat-container">
-            <h2 class="text-center text-primary">Private Chat</h2>
-            <p class="text-center text-muted">Your Socket ID: <strong id="myId"></strong></p>
-
-            <div class="mb-3">
-                <input type="text" id="receiverId" class="form-control" placeholder="Enter Receiver ID">
-            </div>
-            <div class="mb-3">
-                <input type="text" id="message" class="form-control" placeholder="Enter Message">
-            </div>
-            <button id="sendBtn" class="btn btn-primary w-100">Send</button>
-
-            <h5 class="mt-4">Messages:</h5>
-            <ul id="messages" class="list-group message-list"></ul>
-        </div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>Private Chat</h2>
     </div>
 
-    <!-- Bootstrap JS (optional for animations) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="info">
+      <p>Your Socket ID: <span id="myId">Connecting...</span></p>
+      <p>Logged in as: <span id="usernameDisplay"></span></p>
+    </div>
 
+    <ul id="messages"></ul>
+
+    <div class="message-input">
+      <input type="text" id="message" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+    const username = prompt("Enter your username (user1 or user2):");
+    const recipient = username === "user1" ? "user2" : "user1";
+
+    document.getElementById("usernameDisplay").textContent = username;
+    socket.emit("set_username", username);
+
+    socket.on("connect", () => {
+      document.getElementById("myId").innerText = socket.id;
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const messageInput = document.getElementById("message");
+      const message = messageInput.value;
+      if (message.trim()) {
+        socket.emit("private_message", { message });
+        messageInput.value = "";
+      }
+    });
+
+    socket.on("receive_message", ({ sender, message }) => {
+      const messagesList = document.getElementById("messages");
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `<strong>${sender}:</strong> ${message}`;
+      messagesList.appendChild(listItem);
+
+      // Auto-scroll to latest message
+      messagesList.scrollTop = messagesList.scrollHeight;
+    });
+
+    socket.on("auth_error", (msg) => {
+      alert(msg);
+    });
+
+    socket.on("user_not_online", (recipient) => {
+      alert(`${recipient} is not online.`);
+    });
+  </script>
 </body>
 </html>
